@@ -1,19 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+type Appointment = {
+    id: number;
+    name: string;
+    phone: string;
+    branch: string;
+    service: string;
+    date: string;
+    timeSlot: string;
+    status: string;
+};
+type WaitlistEntry = {
+    id: number;
+    name: string;
+    phone: string;
+    branch: string;
+    service: string;
+    date: string;
+    timeSlot: string;
+}
 export default function Admin() {
-    const [appointments, setAppointments] = useState([
-        {id: 1, name: "Sara Ahmed", phone: "0789999012", branch: "Abdoun", service: "Loan Inquiry", date: "26-06-2026", timeSlot: "10:00 AM", status: "Booked"},
-        {id: 2, name: "Yousef Murad", phone: "0795126432", branch: "Shmeisani", service: "Open Account", date: "01-07-2026", timeSlot: "9:00 AM", status: "Booked"},
-        {id:3, name: "Zaid Madamgha", phone: "0797039099", branch: "Sweifieh", service: "Card Issue", date: "05-07-2026", timeSlot: "11:00 AM", status: "Booked"},
-    ]);
-    const waitlist = [
-        {id: 1, name: "Zain Sinokrot", phone: "0792224660", branch: "Abdoun", service: "Open Account", date: "01-07-2026", timeSlot: "12:00 PM"},
-        {id: 2, name: "Mustafa Abukhas", phone: "0795460790", branch: "Sweifieh", service: "Loan Inquiry", date: "27-06-2026", timeSlot: "10:00 AM"},
-        {id: 3, name: "Hamzeh Kasim", phone: "0775656666", branch: "Abdoun", service: "Card Issue", date: "30-06-2026", timeSlot: "9:00 AM"},
-    ];
-    function markAsNoShow(id) {
-        setAppointments(appointments.map((ap) => 
-            ap.id === id ? {...ap, status: "No Show"} : ap
+    const [appointments, setAppointments] = useState<WaitlistEntry[]>([]);
+    const [waitlist, setWaitlist] = useState<Appointment[]>([]);
+    useEffect(() => {
+        fetch("http://localhost:8000/appointments")
+            .then((res) => res.json())
+            .then((data) => setAppointments(data));
+        fetch("http://localhost:8000/waitlist")
+            .then((res) => res.json())
+            .then((data) => setWaitlist(data));
+
+    }, [])
+    async function markAsNoShow(id: number) {
+        await fetch(`http://localhost:8000/appointments/${id}/noshow`, {
+            method: "PATCH"
+    });
+        setAppointments(appointments.map((ap) =>
+            ap.id === id ? { ...ap, status: "No-Show" } : ap
         ));
     }
     return(

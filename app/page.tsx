@@ -11,7 +11,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const router = useRouter();
-  function handleBooking() {
+  async function handleBooking() {
     if (!name || !phone || !date) {
       alert("Please fill in all the fields");
       return;
@@ -28,8 +28,18 @@ export default function Home() {
     );
   
     if (isBooked) {
+      await fetch("http://localhost:8000/waitlist", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name, phone, branch, service, date, timeSlot})
+      });
       router.push(`/waitlist?name=${name}&phone=${phone}&branch=${branch}&service=${service}&date=${date}&timeSlot=${timeSlot}`);
     } else {
+      await fetch("http://localhost:8000/appointments", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name, phone, branch, service, date, timeSlot})
+      });
         router.push(`/confirmation?name=${name}&phone=${phone}&branch=${branch}&service=${service}&date=${date}&timeSlot=${timeSlot}`);
       }
   }
